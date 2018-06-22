@@ -1,2 +1,2 @@
 # microservices
-Microservices architecture in Golang
+Container shipping microservices in Golang
