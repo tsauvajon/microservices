@@ -12,7 +12,6 @@ import (
 )
 
 const (
-	address         = "localhost:50051"
 	defaultFilename = "consignment.json"
 )
 
@@ -27,7 +26,19 @@ func parseFile(file string) (*pb.Consignment, error) {
 }
 
 func main() {
-	// Set up a connection to the server.
+	port := os.Getenv("GRPC_PORT")
+	host := os.Getenv("GRPC_HOST")
+
+	if port == "" {
+		port = ":50051"
+	}
+
+	if host == "" {
+		host = "localhost"
+	}
+
+	address := host + port
+
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Did not connect: %v", err)
@@ -52,4 +63,12 @@ func main() {
 		log.Fatalf("Could not greet: %v", err)
 	}
 	log.Printf("Created: %t", r.Created)
+
+	response, err := client.GetConsignments(context.Background(), &pb.GetRequest{})
+	if err != nil {
+		log.Fatalf("Could not list the consignments: %v", err)
+	}
+	for _, c := range response.Consignments {
+		log.Println(c)
+	}
 }
