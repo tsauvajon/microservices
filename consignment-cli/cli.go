@@ -6,9 +6,10 @@ import (
 	"log"
 	"os"
 
+	microclient "github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/cmd"
 	pb "github.com/tsauvajon/microservices/consignment-service/proto/consignment"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 )
 
 const (
@@ -26,25 +27,9 @@ func parseFile(file string) (*pb.Consignment, error) {
 }
 
 func main() {
-	port := os.Getenv("GRPC_PORT")
-	host := os.Getenv("GRPC_HOST")
+	cmd.Init()
 
-	if port == "" {
-		port = ":50051"
-	}
-
-	if host == "" {
-		host = "localhost"
-	}
-
-	address := host + port
-
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Did not connect: %v", err)
-	}
-	defer conn.Close()
-	client := pb.NewShippingServiceClient(conn)
+	client := pb.NewShippingServiceClient("go.micro.srv.consignment", microclient.DefaultClient)
 
 	// Contact the server and print out its response.
 	file := defaultFilename
